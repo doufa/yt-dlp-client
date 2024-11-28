@@ -1,7 +1,11 @@
 import { dialog, ipcMain } from 'electron';
 import { exec } from 'child_process';
 import path from 'path';
-import { ffmpegPath } from './main';  // Import the ffmpegPath from main.ts
+import { execPaths } from './execPaths';
+
+// Use the paths
+const ffmpegPath = execPaths.ffmpeg;
+const ytDlpPath = execPaths.ytDlp;
 
 // Handler for selecting directory
 ipcMain.handle('select-directory', async () => {
@@ -18,11 +22,6 @@ ipcMain.handle('select-directory', async () => {
 // Handler for video download
 ipcMain.handle('download-video', async (_event, url: string, saveDir: string) => {
   try {
-    const isDev = process.env.NODE_ENV === 'development';
-    const basePath = isDev 
-      ? path.join(__dirname, '..', '..') 
-      : process.resourcesPath;
-    const ytDlpPath = path.join(basePath, 'lib', process.platform, 'yt-dlp.exe');
 
     // Using ffmpegPath from main.ts instead of hardcoded path
     const command = `"${ytDlpPath}" --proxy http://127.0.0.1:7890 -f "worst[ext=mp4]" -o "${path.join(saveDir, 'test.mp4')}" --ffmpeg-location "${ffmpegPath}" "${url}"`;

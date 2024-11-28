@@ -1,29 +1,10 @@
 import { app, BrowserWindow } from 'electron';
 import './ipc';
-import * as path from 'path';
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
   app.quit();
 }
-
-const isDev = process.env.NODE_ENV === 'development';
-
-function getFfmpegPath(): string {
-    const platform = process.platform;
-    const ffmpegExecutable = platform === 'win32' ? 'ffmpeg.exe' : 'ffmpeg';
-    
-    if (isDev) {
-        // In development, we need to go up from .webpack to the project root
-        return path.join(__dirname, '..', '..', 'lib', platform, ffmpegExecutable);
-    } else {
-        // In production, use the path relative to the app resources
-        return path.join(process.resourcesPath, 'lib', platform, ffmpegExecutable);
-    }
-}
-
-// You can export it if needed in other files
-export const ffmpegPath = getFfmpegPath();
 
 const createWindow = (): void => {
   // Create the browser window.
