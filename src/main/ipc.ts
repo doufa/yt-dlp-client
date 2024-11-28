@@ -2,6 +2,7 @@ import { dialog, ipcMain } from 'electron';
 import { exec } from 'child_process';
 import path from 'path';
 import { execPaths } from './execPaths';
+import { DownloadProgress } from 'shared/types/download';
 
 // Use the paths
 const ffmpegPath = execPaths.ffmpeg;
@@ -32,8 +33,19 @@ ipcMain.handle('download-video', async (_event, url: string, saveDir: string) =>
 
     downloadProcess.stdout?.on('data', (data) => {
       console.log(`stdout: ${data}`);
-      // Parse progress from stdout if possible and send it to the renderer
-      // Example: _event.sender.send('download-progress', parsedProgress);
+      
+      const dataStr = data.toString();
+      const progressMatch = dataStr.match(/\[download\]\s+(\d+\.?\d*)%\s+of\s+~?(\d+\.?\d*)(MiB|KiB|B)(?:\s+at\s+(\d+\.?\d*)(MiB|KiB|B)\/s)?(?:\s+ETA\s+(\d+:\d+))?/);
+      
+      if (progressMatch) {
+        const progressInfo: DownloadProgress = {
+          progress: parseFloat(progressMatch[1]),
+          size: `${progressMatch[2]}${progressMatch[3]}`,
+          speed: progressMatch[4] ? `${progressMatch[4]}${progressMatch[5]}/s` : null,
+          eta: progressMatch[6] || null
+        };
+        _event.sender.send('download-progress', progressInfo);
+      }
     });
 
     downloadProcess.stderr?.on('data', (data) => {

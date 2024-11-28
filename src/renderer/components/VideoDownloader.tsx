@@ -1,18 +1,27 @@
 import React, { useState, useEffect } from 'react';
+import { DownloadProgress } from '../../shared/types/download';
+
+const initialProgress: DownloadProgress = { progress: 0, size: '', speed: null, eta: null };
 
 const VideoDownloader: React.FC = () => {
   const [url, setUrl] = useState('');
   const [saveDir, setSaveDir] = useState('');
   const [downloading, setDownloading] = useState(false);
-  const [progress, setProgress] = useState(0);
+  const [progress, setProgress] = useState<DownloadProgress>(initialProgress);
 
   useEffect(() => {
-    window.electron.getDownloadProgress((newProgress) => {
+    window.electron.getDownloadProgress((newProgress: DownloadProgress) => {
       setProgress(newProgress);
+      
+      console.log('progress', newProgress);
+      if (newProgress.progress === 100) {
+        setDownloading(false);
+        setProgress(initialProgress);
+      }
     });
 
-    // todo set url to https://www.youtube.com/watch?v=6KL2QZ91kAM&ab_channel=ScenicRelaxation, saveDir to C:\Users\doufa\Downloads for test
-    setUrl('https://www.youtube.com/watch?v=6KL2QZ91kAM&ab_channel=ScenicRelaxation');
+    // todo set url to https://www.youtube.com/watch?v=JzPfMbG1vrE&ab_channel=ExplainerVideoCafe, saveDir to C:\Users\doufa\Downloads for test
+    setUrl('https://www.youtube.com/watch?v=JzPfMbG1vrE&ab_channel=ExplainerVideoCafe');
     setSaveDir('C:\\Users\\doufa\\Downloads\\youtube');
   }, []);
 
@@ -23,19 +32,17 @@ const VideoDownloader: React.FC = () => {
     }
   };
 
-  const handleDownload = async () => {
+  const handleDownload = () => {
     if (!url || !saveDir) return;
 
     setDownloading(true);
     try {
-      await window.electron.downloadVideo(url, saveDir);
-      setUrl('');
-      setSaveDir('');
+      window.electron.downloadVideo(url, saveDir);
+      // The download completion will be handled through the progress listener
     } catch (error) {
       console.error('Download failed:', error);
-    } finally {
       setDownloading(false);
-      setProgress(0);
+      setProgress(initialProgress);
     }
   };
 
@@ -81,11 +88,25 @@ const VideoDownloader: React.FC = () => {
         </button>
 
         {downloading && (
-          <div className="w-full bg-gray-200 rounded-full h-2.5">
-            <div
-              className="bg-blue-600 h-2.5 rounded-full transition-all duration-300"
-              style={{ width: `${progress}%` }}
-            ></div>
+          <div className="space-y-2">
+            <div className="w-full bg-gray-200 rounded-full h-2.5">
+              <div
+                className="bg-blue-600 h-2.5 rounded-full transition-all duration-300"
+                style={{ width: `${progress.progress}%` }}
+              ></div>
+            </div>
+            
+            <div className="text-sm text-gray-600 flex justify-between">
+              <span>{progress.progress.toFixed(1)}%</span>
+              <span>{progress.size}</span>
+            </div>
+            
+            {(progress.speed || progress.eta) && (
+              <div className="text-sm text-gray-600 flex justify-between">
+                {progress.speed && <span>Speed: {progress.speed}</span>}
+                {progress.eta && <span>ETA: {progress.eta}</span>}
+              </div>
+            )}
           </div>
         )}
       </div>

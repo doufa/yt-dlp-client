@@ -1,4 +1,5 @@
 import { contextBridge, ipcRenderer } from 'electron';
+import { DownloadProgress } from 'shared/types/download';
 
 contextBridge.exposeInMainWorld('electron', {
   downloadVideo: (url: string, saveDir: string) => ipcRenderer.invoke('download-video', url, saveDir),
@@ -13,7 +14,7 @@ declare global {
   interface Window {
     electron: {
       downloadVideo: (url: string, saveDir: string) => Promise<void>;
-      getDownloadProgress: (callback: (progress: number) => void) => void;
+      getDownloadProgress: (callback: (progress: DownloadProgress) => void) => void;
       selectDirectory: () => Promise<string | null>;
     };
   }
