@@ -4,9 +4,14 @@ import { MakerZIP } from '@electron-forge/maker-zip';
 import { MakerDeb } from '@electron-forge/maker-deb';
 import { MakerRpm } from '@electron-forge/maker-rpm';
 import { WebpackPlugin } from '@electron-forge/plugin-webpack';
+import path from 'path';
 
 const config: ForgeConfig = {
-  packagerConfig: {},
+  packagerConfig: {
+    extraResource: [
+      path.join(__dirname, 'lib')
+    ]
+  },
   rebuildConfig: {},
   makers: [
     new MakerSquirrel({}),
