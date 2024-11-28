@@ -178,3 +178,43 @@ This software is not affiliated with or endorsed by YouTube or any other video p
 3. Commit your changes (`git commit -m 'Add some amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
+
+# TODOs
+
+## 1. Configuration Page
+- Create configuration page with:
+  - Download save path selector (with directory picker)
+  - Proxy address input field
+  - Default quality settings
+  - Save/Reset buttons
+- Persist settings between app launches
+- Add validation for proxy address format
+- Add path existence validation
+- Add configuration migration system for future updates
+
+## 2. Download Quality Selection
+- Add quality selector dropdown in download page
+- Fetch available qualities when URL is entered
+- Show resolution, format, and estimated file size
+- Remember last selected quality
+- Add option to always use highest/lowest quality
+- Handle live streams differently
+- Support different quality options for different platforms
+
+## 3. Download Progress
+- Show real-time download progress:
+  - Percentage complete
+  - Download speed
+  - Estimated time remaining
+  - File size (downloaded/total)
+- Add progress bar visualization
+- Show current download status
+- Add cancel download option
+- Handle download errors gracefully
+- Show download history
+- Support multiple concurrent downloads
+
+### Priority Order
+1. Download Progress
+2. Quality Selection
+3. Configuration Page
