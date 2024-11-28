@@ -8,6 +8,7 @@ const VideoDownloader: React.FC = () => {
   const [saveDir, setSaveDir] = useState('');
   const [downloading, setDownloading] = useState(false);
   const [progress, setProgress] = useState<DownloadProgress>(initialProgress);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     window.electron.getDownloadProgress((newProgress: DownloadProgress) => {
@@ -18,6 +19,18 @@ const VideoDownloader: React.FC = () => {
         setDownloading(false);
         setProgress(initialProgress);
       }
+    });
+
+    window.electron.downloadError((errorMessage: string) => {
+      console.error('Download error:', errorMessage);
+      setError(errorMessage);
+      setDownloading(false);
+      setProgress(initialProgress);
+    });
+
+    window.electron.downloadStop(() => {
+      setDownloading(false);
+      setProgress(initialProgress);
     });
 
     // todo set url to https://www.youtube.com/watch?v=JzPfMbG1vrE&ab_channel=ExplainerVideoCafe, saveDir to C:\Users\doufa\Downloads for test
@@ -36,11 +49,12 @@ const VideoDownloader: React.FC = () => {
     if (!url || !saveDir) return;
 
     setDownloading(true);
+    setError(null);
     try {
       window.electron.downloadVideo(url, saveDir);
-      // The download completion will be handled through the progress listener
     } catch (error) {
       console.error('Download failed:', error);
+      setError(error instanceof Error ? error.message : 'Download failed');
       setDownloading(false);
       setProgress(initialProgress);
     }
@@ -87,6 +101,15 @@ const VideoDownloader: React.FC = () => {
           {downloading ? 'Downloading...' : 'Download'}
         </button>
 
+        {error && (
+          <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+            <div className="text-red-800 font-medium mb-1">Download Error</div>
+            <pre className="text-sm text-red-600 whitespace-pre-wrap break-words font-mono">
+              {error}
+            </pre>
+          </div>
+        )}
+
         {downloading && (
           <div className="space-y-2">
             <div className="w-full bg-gray-200 rounded-full h-2.5">
@@ -107,6 +130,12 @@ const VideoDownloader: React.FC = () => {
                 {progress.eta && <span>ETA: {progress.eta}</span>}
               </div>
             )}
+            
+            <div className="mt-4 max-h-40 overflow-y-auto bg-gray-50 rounded-lg p-3">
+              <pre className="text-xs text-gray-600 font-mono whitespace-pre-wrap">
+                Downloading... Check console for detailed progress.
+              </pre>
+            </div>
           </div>
         )}
       </div>

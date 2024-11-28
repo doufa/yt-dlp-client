@@ -50,6 +50,17 @@ ipcMain.handle('download-video', async (_event, url: string, saveDir: string) =>
 
     downloadProcess.stderr?.on('data', (data) => {
       console.error(`stderr: ${data}`);
+      _event.sender.send('download-error', data);
+
+      // For Windows
+      require('tree-kill')(downloadProcess.pid);
+      // set event to update the ui
+      _event.sender.send('download-error');
+    });
+
+    downloadProcess.on('error', (error) => {
+      console.error('Process error:', error);
+      _event.sender.send('download-error', error.message);
     });
 
     downloadProcess.on('close', (code) => {

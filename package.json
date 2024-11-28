@@ -28,6 +28,7 @@
     "forge": "./forge.config.ts"
   },
   "dependencies": {
+    "tree-kill": "^1.0.0",
     "@electron-forge/cli": "^7.x.x",
     "@types/node": "^20.x.x",
     "@types/react": "^18.x.x",
