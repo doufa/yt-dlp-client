@@ -1,4 +1,4 @@
-# Video Downloader
+# YT-DLP Downloader
 
 A cross-platform video downloader application built with Electron and React, supporting YouTube and other platforms. The application comes bundled with yt-dlp and ffmpeg for seamless video downloading experience.
 
@@ -21,22 +21,26 @@ A cross-platform video downloader application built with Electron and React, sup
 ### Setup
 
 1. Clone the repository:
+
 ```bash
 git clone https://github.com/doufa/video-downloader.git
 cd video-downloader
 ```
 
 2. Install pnpm if you haven't already:
+
 ```bash
 npm install -g pnpm
 ```
 
 3. Install dependencies:
+
 ```bash
 pnpm install
 ```
 
 4. **Important**: Download required binaries (yt-dlp and ffmpeg):
+
 ```bash
 # If you need to use a proxy:
 pnpm download-binaries
@@ -48,6 +52,7 @@ pnpm download-binaries:no-proxy
 > ⚠️ **Note**: You must run the download-binaries command before starting the app or building. This step downloads the required yt-dlp and ffmpeg executables for your platform.
 
 5. Start the development server:
+
 ```bash
 pnpm start
 ```
@@ -58,6 +63,7 @@ To create a distribution package:
 
 1. Ensure you've downloaded the binaries first (step 4 above)
 2. Run the build command:
+
 ```bash
 pnpm make
 ```
@@ -67,6 +73,7 @@ The packaged applications will be available in the `out` directory.
 ### Why pnpm?
 
 We recommend using pnpm for this project because:
+
 - Faster installation times
 - More efficient disk space usage
 - Strict dependency management
@@ -76,18 +83,49 @@ We recommend using pnpm for this project because:
 ## Project Structure
 
 ```
-your-project/
+yt-dlp-downloader/
   ├── src/
-  │   ├── main/      # Electron main process code
-  │   └── renderer/  # React application code
-  ├── lib/           # Platform-specific binaries
-  │   ├── win32/     # Windows binaries
+  │   ├── main/           # Electron main process code
+  │   │   ├── handlers/   # IPC handlers
+  │   │   ├── services/   # Business logic services
+  │   │   ├── utils/      # Utility functions
+  │   │   └── main.ts     # Main entry point
+  │   │
+  │   ├── renderer/       # React application code
+  │   │   ├── components/ # Reusable React components
+  │   │   ├── pages/      # Page components
+  │   │   ├── hooks/      # Custom React hooks
+  │   │   ├── styles/     # CSS/SCSS files
+  │   │   ├── utils/      # Frontend utilities
+  │   │   ├── types/      # TypeScript type definitions
+  │   │   └── App.tsx     # Root React component
+  │   │
+  │   └── types/              # TypeScript types
+  │       ├── electron.d.ts/  # electron types
+  │       ├── webpack.d.ts/   # webpack types
+  │
+  ├── lib/               # Platform-specific binaries
+  │   ├── win32/         # Windows binaries
   │   │   ├── ffmpeg.exe
   │   │   └── yt-dlp.exe
-  │   ├── darwin/    # macOS binaries
-  │   └── linux/     # Linux binaries
-  ├── scripts/       # Build and utility scripts
-  └── public/        # Static assets
+  │   ├── darwin/        # macOS binaries
+  │   │   ├── ffmpeg
+  │   │   └── yt-dlp
+  │   └── linux/         # Linux binaries
+  │       ├── ffmpeg
+  │       └── yt-dlp
+  │
+  ├── scripts/           # Build and utility scripts
+  │   ├── download-binaries.ts
+  │   └── build-helpers.ts
+  │
+  ├── public/            # Static assets
+  │   ├── icons/        # Application icons
+  │   └── locales/      # i18n translation files
+  │
+  ├── .webpack/         # Webpack build output
+  ├── out/             # Electron-forge output
+  └── dist/            # Production build output
 ```
 
 ## Technologies
@@ -116,14 +154,16 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 This application bundles the following third-party software:
 
 #### yt-dlp
+
 - License: [Unlicense License](https://github.com/yt-dlp/yt-dlp/blob/master/LICENSE)
 - Copyright: The yt-dlp Contributors
-- Source: https://github.com/yt-dlp/yt-dlp
+- Source: <https://github.com/yt-dlp/yt-dlp>
 
 #### FFmpeg
+
 - License: [GNU Lesser General Public License (LGPL) version 2.1](https://www.ffmpeg.org/legal.html)
 - Copyright: The FFmpeg developers
-- Source: https://ffmpeg.org/
+- Source: <https://ffmpeg.org/>
 
 These components are included as binary distributions and are subject to their respective licenses. By using this application, you agree to comply with all third-party licenses.
 
