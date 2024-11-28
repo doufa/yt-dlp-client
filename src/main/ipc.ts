@@ -25,8 +25,23 @@ ipcMain.handle('download-video', async (_event, url: string, saveDir: string, fo
   try {
     console.log(`download-video: ${url}, ${saveDir}, ${formatId}`);
 
-    // set formatId in command
-    const command = `"${ytDlpPath}" --proxy http://127.0.0.1:7890 -f "${formatId}+bestaudio" -o "${path.join(saveDir, 'test.mp4')}" --ffmpeg-location "${ffmpegPath}" "${url}"`;
+    // First, get the video title and extension
+    const titleCommand = `"${ytDlpPath}" --proxy http://127.0.0.1:7890 --get-title --get-filename -f ${formatId} "${url}"`;
+    const { title, ext } = await new Promise<{ title: string, ext: string }>((resolve, reject) => {
+      exec(titleCommand, (error, stdout, stderr) => {
+        if (error) reject(error);
+        console.log(`titleCommand stdout: ${stdout}`);
+        const [videoTitle, filename] = stdout.trim().split('\n');
+        const extension = filename.split('.').pop() || 'mp4'; // fallback to mp4 if extension not found
+        resolve({ title: videoTitle, ext: extension });
+      });
+    });
+
+    // Sanitize the filename to remove invalid characters
+    const sanitizedTitle = title.replace(/[<>:"/\\|?*]/g, '').trim();
+    
+    // Now use the title and correct extension in the download command
+    const command = `"${ytDlpPath}" --proxy http://127.0.0.1:7890 -f "${formatId}+bestaudio" --merge-output-format ${ext} -o "${path.join(saveDir, `${sanitizedTitle}.${ext}`)}" --ffmpeg-location "${ffmpegPath}" "${url}"`;
 
     console.log(`Executing command: ${command}`);
 
