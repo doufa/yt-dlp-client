@@ -1,5 +1,5 @@
 import { dialog, ipcMain } from 'electron';
-import { exec } from 'child_process';
+import { exec, spawn } from 'child_process';
 import path from 'path';
 import { execPaths } from './execPaths';
 import { DownloadProgress } from 'shared/types/download';
@@ -21,11 +21,12 @@ ipcMain.handle('select-directory', async () => {
 });
 
 // Handler for video download
-ipcMain.handle('download-video', async (_event, url: string, saveDir: string) => {
+ipcMain.handle('download-video', async (_event, url: string, saveDir: string, formatId: string) => {
   try {
+    console.log(`download-video: ${url}, ${saveDir}, ${formatId}`);
 
-    // Using ffmpegPath from main.ts instead of hardcoded path
-    const command = `"${ytDlpPath}" --proxy http://127.0.0.1:7890 -f "worst[ext=mp4]" -o "${path.join(saveDir, 'test.mp4')}" --ffmpeg-location "${ffmpegPath}" "${url}"`;
+    // set formatId in command
+    const command = `"${ytDlpPath}" --proxy http://127.0.0.1:7890 -f "${formatId}+bestaudio" -o "${path.join(saveDir, 'test.mp4')}" --ffmpeg-location "${ffmpegPath}" "${url}"`;
 
     console.log(`Executing command: ${command}`);
 
@@ -74,3 +75,70 @@ ipcMain.handle('download-video', async (_event, url: string, saveDir: string) =>
     throw error;
   }
 }); 
+
+// Add these IPC handlers
+ipcMain.handle('fetch-video-formats', async (event, url) => {
+  return new Promise((resolve, reject) => {
+    const command = `"${ytDlpPath}" -F --proxy http://127.0.0.1:7890 "${url}"`;
+    
+    const ytdl = exec(command, { maxBuffer: 1024 * 1024 * 10 });
+    let output = '';
+
+    ytdl.stdout?.on('data', (data) => {
+      output += data;
+    });
+
+    ytdl.stderr?.on('data', (data) => {
+      console.error(`stderr: ${data}`);
+    });
+
+    ytdl.on('close', (code) => {
+      if (code === 0) {
+        try {
+          // Check if the output contains format information
+          if (!output.includes('Available formats for')) {
+            throw new Error('No format information found');
+          }
+
+          // Split the output into lines and filter out header lines
+          const lines = output.split('\n')
+            .filter(line => {
+              const trimmed = line.trim();
+              return trimmed && 
+                     !trimmed.startsWith('[') && 
+                     !trimmed.startsWith('ID') && 
+                     !trimmed.startsWith('--');
+            });
+
+          // Parse each line into a format object
+          const formats = lines.map(line => {
+            const parts = line.trim().split(/\s+/);
+            const formatId = parts[0];
+            const ext = parts[1];
+            const resolution = parts[2] === 'audio' ? 'audio only' : parts[2];
+            const fps = parts[3] === 'only' ? 'N/A' : parts[3];
+            const filesize = parts.find(p => p.includes('MiB') || p.includes('KiB')) || 'N/A';
+            const vcodec = parts.find(p => p.includes('avc1') || p.includes('vp09') || p.includes('av01')) || 'N/A';
+            
+            return {
+              formatId,
+              ext,
+              resolution,
+              filesize,
+              fps,
+              vcodec,
+              description: line.trim() // Keep the full line for reference
+            };
+          });
+          
+          event.sender.send('video-formats', formats);
+          resolve(formats);
+        } catch (error) {
+          reject(error);
+        }
+      } else {
+        reject(new Error('Failed to fetch video formats'));
+      }
+    });
+  });
+});
