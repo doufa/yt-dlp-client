@@ -54,8 +54,6 @@ ipcMain.handle('download-video', async (_event, url: string, saveDir: string) =>
 
       // For Windows
       require('tree-kill')(downloadProcess.pid);
-      // set event to update the ui
-      _event.sender.send('download-error');
     });
 
     downloadProcess.on('error', (error) => {
