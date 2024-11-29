@@ -51,7 +51,7 @@ ipcMain.handle('download-video', async (_event, url: string, saveDir: string, fo
       console.log(`stdout: ${data}`);
       
       const dataStr = data.toString();
-      const progressMatch = dataStr.match(/\[download\]\s+(\d+\.?\d*)%\s+of\s+~?(\d+\.?\d*)(MiB|KiB|B)(?:\s+at\s+(\d+\.?\d*)(MiB|KiB|B)\/s)?(?:\s+ETA\s+(\d+:\d+))?/);
+      const progressMatch = dataStr.match(/\[download\]\s+(\d+\.?\d*)%\s+of\s+~?\s*(\d+\.?\d*)(MiB|KiB|B)(?:\s+at\s+(\d+\.?\d*)(MiB|KiB|B)\/s)?(?:\s+ETA\s+(\d+:\d+))?(?:\s+\(frag\s+\d+\/\d+\))?/);
       
       if (progressMatch) {
         const progressInfo: DownloadProgress = {
@@ -134,7 +134,7 @@ ipcMain.handle('fetch-video-formats', async (event, url) => {
             const ext = parts[1];
             const resolution = parts[2] === 'audio' ? 'audio only' : parts[2];
             const fps = parts[3] === 'only' ? 'N/A' : parts[3];
-            const filesize = parts.find(p => p.includes('MiB') || p.includes('KiB')) || 'N/A';
+            const filesize = parts.find(p => p.includes('MiB') || p.includes('KiB') || p.includes('GiB')) || 'N/A';
             const vcodec = parts.find(p => p.includes('avc1') || p.includes('vp09') || p.includes('av01')) || 'N/A';
             
             return {
