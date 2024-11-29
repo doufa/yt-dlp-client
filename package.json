@@ -15,7 +15,9 @@
     "download-binaries:no-proxy": "ts-node scripts/download-binaries.ts",
     "init": "ts-node scripts/download-binaries.ts",
     "version": "git add -A src",
-    "postversion": "git push && git push --tags"
+    "postversion": "git push && git push --tags",
+    "generate-source-png": "ts-node scripts/svg-to-png.ts",
+    "generate-icons": "npm run generate-source-png && ts-node scripts/generate-icons.ts"
   },
   "keywords": [
     "electron",
@@ -24,7 +26,7 @@
     "video-downloader",
     "yt-dlp"
   ],
-  "author": "Your Name",
+  "author": "doufa",
   "license": "MIT",
   "config": {
     "forge": "./forge.config.ts"
@@ -64,7 +66,9 @@
     "typescript": "^5.7.2",
     "webpack": "^5.96.1",
     "webpack-cli": "^5.1.4",
-    "node-loader": "^2.0.0"
+    "node-loader": "^2.0.0",
+    "sharp": "^0.32.0",
+    "icon-gen": "^3.0.0"
   },
   "build": {
     "extraResources": [

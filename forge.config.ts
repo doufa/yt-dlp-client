@@ -10,14 +10,27 @@ const config: ForgeConfig = {
   packagerConfig: {
     extraResource: [
       path.join(__dirname, 'lib')
-    ]
+    ],
+    icon: './assets/icons/icon',
+    asar: true,
   },
   rebuildConfig: {},
   makers: [
-    new MakerSquirrel({}),
+    new MakerSquirrel({
+      iconUrl: 'https://raw.githubusercontent.com/doufa/yt-dlp-client/main/assets/icons/icon.ico',
+      setupIcon: './assets/icons/icon.ico'
+    }),
     new MakerZIP({}, ['darwin']),
-    new MakerRpm({}),
-    new MakerDeb({})
+    new MakerRpm({
+      options: {
+        icon: './assets/icons/png/512x512.png'
+      }
+    }),
+    new MakerDeb({
+      options: {
+        icon: './assets/icons/png/512x512.png'
+      }
+    })
   ],
   plugins: [
     new WebpackPlugin({
