@@ -192,14 +192,14 @@ This software is not affiliated with or endorsed by YouTube or any other video p
 - Add path existence validation
 - Add configuration migration system for future updates
 
-## 2. Download Quality Selection
-- Add quality selector dropdown in download page
-- Fetch available qualities when URL is entered
-- Show resolution, format, and estimated file size
-- Remember last selected quality
-- Add option to always use highest/lowest quality
-- Handle live streams differently
-- Support different quality options for different platforms
+## 2. ~~Download Quality Selection~~ ✅
+- ~~Add quality selector dropdown in download page~~
+- ~~Fetch available qualities when URL is entered~~
+- ~~Show resolution, format, and estimated file size~~
+- ~~Remember last selected quality~~
+- ~~Add option to always use highest/lowest quality~~
+- ~~Handle live streams differently~~
+- ~~Support different quality options for different platforms~~
 
 ## ~~3. Download Progress~~ ✅
 - ~~Show real-time download progress:~~
@@ -216,5 +216,5 @@ This software is not affiliated with or endorsed by YouTube or any other video p
 
 ### Priority Order
 1. ~~Download Progress~~ ✅
-2. Quality Selection
+2. ~~Quality Selection~~ ✅
 3. Configuration Page
