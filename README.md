@@ -1,5 +1,7 @@
 # YT-DLP Downloader
 
+![Build and Release](https://github.com/doufa/video-downloader/workflows/Build%20and%20Release/badge.svg)
+
 A cross-platform video downloader application built with Electron and React, supporting YouTube and other platforms. The application comes bundled with yt-dlp and ffmpeg for seamless video downloading experience.
 
 ## Features
@@ -11,7 +13,6 @@ A cross-platform video downloader application built with Electron and React, sup
 - Portable application
 
 ## Development
-
 ### Prerequisites
 
 - Node.js 16.x or later
@@ -218,3 +219,4 @@ This software is not affiliated with or endorsed by YouTube or any other video p
 1. ~~Download Progress~~ ✅
 2. ~~Quality Selection~~ ✅
 3. Configuration Page
+
