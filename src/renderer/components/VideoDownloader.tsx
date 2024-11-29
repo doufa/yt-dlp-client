@@ -8,6 +8,8 @@ const initialProgress: DownloadProgress = { progress: 0, size: '', speed: null, 
 const VideoDownloader: React.FC = () => {
   const [url, setUrl] = useState('');
   const [saveDir, setSaveDir] = useState('');
+  const [useProxy, setUseProxy] = useState(false);
+  const [proxy, setProxy] = useState('http://127.0.0.1:7890');
   const [downloading, setDownloading] = useState(false);
   const [progress, setProgress] = useState<DownloadProgress>(initialProgress);
   const [error, setError] = useState<string | null>(null);
@@ -49,6 +51,13 @@ const VideoDownloader: React.FC = () => {
       console.log('videoFormats in renderer', videoFormats);
       setFormats(videoFormats);
       setLoading(false);
+      setError(null);
+    });
+
+    window.electron.fetchVideoFormatsError((error: string) => {
+      console.error('Fetch video formats error:', error);
+      setError(error);
+      setLoading(false);
     });
 
     // todo set url to https://www.youtube.com/watch?v=JzPfMbG1vrE&ab_channel=ExplainerVideoCafe, saveDir to C:\Users\doufa\Downloads for test
@@ -71,7 +80,7 @@ const VideoDownloader: React.FC = () => {
     
     if (newUrl) {
       setLoading(true);
-      window.electron.fetchVideoFormats(newUrl);
+      window.electron.fetchVideoFormats(newUrl, useProxy ? proxy : '');
     }
   };
 
@@ -81,7 +90,7 @@ const VideoDownloader: React.FC = () => {
     setDownloading(true);
     setError(null);
     try {
-      window.electron.downloadVideo(url, saveDir, selectedFormat);
+      window.electron.downloadVideo(url, saveDir, selectedFormat, useProxy ? proxy : '');
     } catch (error) {
       console.error('Download failed:', error);
       setError(error instanceof Error ? error.message : 'Download failed');
@@ -102,6 +111,31 @@ const VideoDownloader: React.FC = () => {
           disabled={downloading}
         />
         
+        <div className="flex items-center space-x-2">
+          <input
+            type="checkbox"
+            id="useProxy"
+            checked={useProxy}
+            onChange={(e) => setUseProxy(e.target.checked)}
+            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            disabled={downloading}
+          />
+          <label htmlFor="useProxy" className="text-sm text-gray-600">
+            Use Proxy
+          </label>
+        </div>
+
+        {useProxy && (
+          <input
+            type="text"
+            value={proxy}
+            onChange={(e) => setProxy(e.target.value)}
+            placeholder="Proxy address (e.g., http://127.0.0.1:7890)"
+            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            disabled={downloading}
+          />
+        )}
+
         {loading && (
           <div className="text-center text-gray-600">
             Loading available formats...

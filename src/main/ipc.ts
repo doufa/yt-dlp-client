@@ -21,12 +21,14 @@ ipcMain.handle('select-directory', async () => {
 });
 
 // Handler for video download
-ipcMain.handle('download-video', async (_event, url: string, saveDir: string, formatId: string) => {
+ipcMain.handle('download-video', async (_event, url: string, saveDir: string, formatId: string, proxy: string) => {
   try {
-    console.log(`download-video: ${url}, ${saveDir}, ${formatId}`);
+    console.log(`download-video: ${url}, ${saveDir}, ${formatId}, ${proxy}`);
 
     // First, get the video title and extension
-    const titleCommand = `"${ytDlpPath}" --proxy http://127.0.0.1:7890 --get-title --get-filename -f ${formatId} "${url}"`;
+    // if proxy is empty, don't use proxy
+    const proxyCommand = proxy ? `--proxy ${proxy}` : '';
+    const titleCommand = `"${ytDlpPath}" ${proxyCommand} --get-title --get-filename -f ${formatId} "${url}"`;
     const { title, ext } = await new Promise<{ title: string, ext: string }>((resolve, reject) => {
       exec(titleCommand, (error, stdout, stderr) => {
         if (error) reject(error);
@@ -41,7 +43,7 @@ ipcMain.handle('download-video', async (_event, url: string, saveDir: string, fo
     const sanitizedTitle = title.replace(/[<>:"/\\|?*]/g, '').trim();
     
     // Now use the title and correct extension in the download command
-    const command = `"${ytDlpPath}" --proxy http://127.0.0.1:7890 -f "${formatId}+bestaudio" --merge-output-format ${ext} -o "${path.join(saveDir, `${sanitizedTitle}.${ext}`)}" --ffmpeg-location "${ffmpegPath}" "${url}"`;
+    const command = `"${ytDlpPath}" ${proxyCommand} -f "${formatId}+bestaudio" --merge-output-format ${ext} -o "${path.join(saveDir, `${sanitizedTitle}.${ext}`)}" --ffmpeg-location "${ffmpegPath}" "${url}"`;
 
     console.log(`Executing command: ${command}`);
 
@@ -94,30 +96,36 @@ ipcMain.handle('download-video', async (_event, url: string, saveDir: string, fo
 }); 
 
 // Add these IPC handlers
-ipcMain.handle('fetch-video-formats', async (event, url) => {
-  return new Promise((resolve, reject) => {
-    const command = `"${ytDlpPath}" -F --proxy http://127.0.0.1:7890 "${url}"`;
+ipcMain.handle('fetch-video-formats', (event, url, proxy) => {
+  let ytdl: any;
+  
+  try {
+    const proxyCommand = proxy ? `--proxy ${proxy}` : '';
+    const command = `"${ytDlpPath}" ${proxyCommand} -F "${url}"`;
     
-    const ytdl = exec(command, { maxBuffer: 1024 * 1024 * 10 });
+    ytdl = exec(command, { maxBuffer: 1024 * 1024 * 10 });
     let output = '';
 
-    ytdl.stdout?.on('data', (data) => {
+    ytdl.stdout?.on('data', (data: any) => {
       output += data;
     });
 
-    ytdl.stderr?.on('data', (data) => {
+    ytdl.stderr?.on('data', (data: any) => {
       console.error(`stderr: ${data}`);
+      handleError(event, data.toString(), ytdl);
     });
 
-    ytdl.on('close', (code) => {
+    ytdl.on('error', (error: any) => {
+      console.error('Process error:', error);
+      handleError(event, error.message, ytdl);
+    });
+
+    ytdl.on('close', (code: any) => {
       if (code === 0) {
         try {
-          // Check if the output contains format information
           if (!output.includes('Available formats for')) {
             throw new Error('No format information found');
           }
-
-          // Split the output into lines and filter out header lines
           const lines = output.split('\n')
             .filter(line => {
               const trimmed = line.trim();
@@ -149,13 +157,22 @@ ipcMain.handle('fetch-video-formats', async (event, url) => {
           });
           
           event.sender.send('video-formats', formats);
-          resolve(formats);
         } catch (error) {
-          reject(error);
+          console.error('Format parsing error:', error);
+          handleError(event, error, ytdl);
         }
-      } else {
-        reject(new Error('Failed to fetch video formats'));
       }
     });
-  });
+  } catch (error: any) {
+    console.error('Initial setup error:', error);
+    handleError(event, error, ytdl);
+  }
 });
+
+// Add helper function for error handling
+function handleError(event: Electron.IpcMainInvokeEvent, error: any, process?: any) {
+  event.sender.send('fetch-video-formats-error', error);
+  if (process?.pid) {
+    require('tree-kill')(process.pid);
+  }
+}
