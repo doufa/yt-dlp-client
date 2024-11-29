@@ -60,9 +60,11 @@ const VideoDownloader: React.FC = () => {
       setLoading(false);
     });
 
-    // todo set url to https://www.youtube.com/watch?v=JzPfMbG1vrE&ab_channel=ExplainerVideoCafe, saveDir to C:\Users\doufa\Downloads for test
-    setUrl('https://www.youtube.com/watch?v=JzPfMbG1vrE&ab_channel=ExplainerVideoCafe');
-    setSaveDir('C:\\Users\\doufa\\Downloads\\youtube');
+    window.electron.getDownloadsPath().then((path: string) => {
+      setSaveDir(path);
+    });
+    
+    setUrl('https://www.youtube.com/watch?v=dQw4w9WgXcQ');
   }, []);
 
   const handleSelectDirectory = async () => {

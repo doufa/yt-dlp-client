@@ -3,6 +3,7 @@ import { DownloadProgress } from 'shared/types/download';
 
 contextBridge.exposeInMainWorld('electron', {
   selectDirectory: () => ipcRenderer.invoke('select-directory'),
+  getDownloadsPath: () => ipcRenderer.invoke('get-downloads-path'),
   downloadVideo: (url: string, saveDir: string, formatId: string, proxy: string) => ipcRenderer.invoke('download-video', url, saveDir, formatId, proxy),
   // add callback to stop the download process  
   downloadStop: (callback: () => void) => ipcRenderer.on('download-stop', callback),
@@ -30,6 +31,7 @@ declare global {
   interface Window {
     electron: {
       selectDirectory: () => Promise<string | null>;
+      getDownloadsPath: () => Promise<string>;
       downloadVideo: (url: string, saveDir: string, formatId: string, proxy: string) => Promise<void>;
       downloadStop: (callback: () => void) => void;
       getDownloadProgress: (callback: (progress: DownloadProgress) => void) => void;

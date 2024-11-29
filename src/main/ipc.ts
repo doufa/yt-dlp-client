@@ -1,5 +1,5 @@
-import { dialog, ipcMain } from 'electron';
-import { exec, spawn } from 'child_process';
+import { app, dialog, ipcMain } from 'electron';
+import { exec } from 'child_process';
 import path from 'path';
 import { execPaths } from './execPaths';
 import { DownloadProgress } from 'shared/types/download';
@@ -167,6 +167,10 @@ ipcMain.handle('fetch-video-formats', (event, url, proxy) => {
     console.error('Initial setup error:', error);
     handleError(event, error, ytdl);
   }
+});
+
+ipcMain.handle('get-downloads-path', () => {
+  return path.join(app.getPath('downloads'), 'youtube');
 });
 
 // Add helper function for error handling
