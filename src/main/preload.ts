@@ -12,6 +12,9 @@ contextBridge.exposeInMainWorld('electron', {
   downloadError: (callback: (error: string) => void) => {
     ipcRenderer.on('download-error', (_event, error) => callback(error));
   },
+  downloadComplete: (callback: () => void) => {
+    ipcRenderer.on('download-complete', () => callback());
+  },
 
   fetchVideoFormats: (url: string) => ipcRenderer.invoke('fetch-video-formats', url),
   getVideoFormats: (callback: (formats: any[]) => void) => 
@@ -27,6 +30,7 @@ declare global {
       downloadStop: (callback: () => void) => void;
       getDownloadProgress: (callback: (progress: DownloadProgress) => void) => void;
       downloadError: (callback: (error: string) => void) => void;
+      downloadComplete: (callback: () => void) => void;
       fetchVideoFormats: (url: string) => Promise<any[]>;
       getVideoFormats: (callback: (formats: any[]) => void) => void;
     };

@@ -80,8 +80,10 @@ ipcMain.handle('download-video', async (_event, url: string, saveDir: string, fo
     downloadProcess.on('close', (code) => {
       if (code === 0) {
         console.log('Download completed successfully');
+        _event.sender.send('download-complete');
       } else {
         console.error(`Download process exited with code ${code}`);
+        _event.sender.send('download-error', `Download process exited with code ${code}`);
       }
     });
 

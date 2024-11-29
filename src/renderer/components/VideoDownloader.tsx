@@ -14,16 +14,21 @@ const VideoDownloader: React.FC = () => {
   const [formats, setFormats] = useState<VideoFormat[]>([]);
   const [selectedFormat, setSelectedFormat] = useState<string>('');
   const [loading, setLoading] = useState(false);
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
   useEffect(() => {
     window.electron.getDownloadProgress((newProgress: DownloadProgress) => {
       setProgress(newProgress);
+      setError(null);
       
       console.log('progress', newProgress);
-      if (newProgress.progress === 100) {
-        setDownloading(false);
-        setProgress(initialProgress);
-      }
+    });
+
+    window.electron.downloadComplete(() => {
+      setDownloading(false);
+      setProgress(initialProgress);
+      setStatusMessage('Download completed successfully!');
+      setTimeout(() => setStatusMessage(null), 3000);
     });
 
     window.electron.downloadError((errorMessage: string) => {
@@ -36,6 +41,8 @@ const VideoDownloader: React.FC = () => {
     window.electron.downloadStop(() => {
       setDownloading(false);
       setProgress(initialProgress);
+      setStatusMessage('Download stopped');
+      setTimeout(() => setStatusMessage(null), 3000);
     });
 
     window.electron.getVideoFormats((videoFormats: VideoFormat[]) => {
@@ -154,6 +161,12 @@ const VideoDownloader: React.FC = () => {
             <pre className="text-sm text-red-600 whitespace-pre-wrap break-words font-mono">
               {error}
             </pre>
+          </div>
+        )}
+
+        {statusMessage && (
+          <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+            <div className="text-green-800">{statusMessage}</div>
           </div>
         )}
 

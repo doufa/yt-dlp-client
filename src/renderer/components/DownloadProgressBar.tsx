@@ -27,11 +27,13 @@ const DownloadProgressBar: React.FC<Props> = ({ progress }) => {
         </div>
       )}
       
-      <div className="mt-4 max-h-40 overflow-y-auto bg-gray-50 rounded-lg p-3">
-        <pre className="text-xs text-gray-600 font-mono whitespace-pre-wrap">
-          Downloading... Check console for detailed progress.
-        </pre>
-      </div>
+      {progress.progress === 0 && (
+        <div className="mt-4 max-h-40 overflow-y-auto bg-gray-50 rounded-lg p-3">
+          <pre className="text-xs text-gray-600 font-mono whitespace-pre-wrap">
+            Downloading... Check console for detailed progress.
+          </pre>
+        </div>
+      )}
     </div>
   );
 };
