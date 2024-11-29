@@ -64,7 +64,7 @@ const VideoDownloader: React.FC = () => {
       setSaveDir(path);
     });
     
-    setUrl('https://www.youtube.com/watch?v=dQw4w9WgXcQ');
+    // setUrl('https://www.youtube.com/watch?v=dQw4w9WgXcQ');
   }, []);
 
   const handleSelectDirectory = async () => {
@@ -108,7 +108,7 @@ const VideoDownloader: React.FC = () => {
           type="text"
           value={url}
           onChange={handleUrlChange}
-          placeholder="Enter video URL"
+          placeholder="Enter video URL like https://www.youtube.com/watch?v=dQw4w9WgXcQ"
           className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           disabled={downloading}
         />
