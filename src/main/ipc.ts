@@ -53,7 +53,7 @@ ipcMain.handle('download-video', async (_event, url: string, saveDir: string, fo
       console.log(`stdout: ${data}`);
       
       const dataStr = data.toString();
-      const progressMatch = dataStr.match(/\[download\]\s+(\d+\.?\d*)%\s+of\s+~?\s*(\d+\.?\d*)(MiB|KiB|B)(?:\s+at\s+(\d+\.?\d*)(MiB|KiB|B)\/s)?(?:\s+ETA\s+(\d+:\d+))?(?:\s+\(frag\s+\d+\/\d+\))?/);
+      const progressMatch = dataStr.match(/\[download\]\s+(\d+\.?\d*)%\s+of\s+~?\s*(\d+\.?\d*)(GiB|MiB|KiB|B)(?:\s+at\s+(\d+\.?\d*)(GiB|MiB|KiB|B)\/s)?(?:\s+ETA\s+(\d+:\d+))?(?:\s+\(frag\s+\d+\/\d+\))?/);
       
       if (progressMatch) {
         const progressInfo: DownloadProgress = {
